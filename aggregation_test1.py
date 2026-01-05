@@ -4,6 +4,22 @@ import json
 import pandas as pd
 from pandas import json_normalize
 
+second_parameter_id_alpha = {
+    "T_1H" : 726,
+    "RH_1H" : 1648,
+    "TD_1H" : 1652,
+    "ST_5" : 569,
+    "ST_10" : 596,
+    "ST_20" : 830,
+    "ST_30" : 930,
+    "SM_5" : 102,
+    "SM_10" : 103,
+    "SM_20" : 104,
+    "SM_30" : 105,
+    "SR_10M" : 106,
+    "PCPN" : 1
+}
+
 token = str(input("Please enter the Token here"))
 
 headers = {
@@ -64,11 +80,12 @@ for station in data:
             print("required columns {datetime and value} are not found")
 print(json.dumps(aggregated_data.to_dict(orient='index'),indent=1))
 
+second_parameter_id_alpha_num = int(input(f"which parameter you want to aggregate {second_parameter_id_alpha}"))
 
 ten_minutevalue = []
 for stationten in data:
     for parameterten in stationten["parameters"]:
-        if parameterten["parameter_id"] == 726:
+        if parameterten["parameter_id"] == second_parameter_id_alpha_num:
             for entry_ten in parameterten["data"]:
                 ten_minutevalue.append(entry_ten["value"])
 
