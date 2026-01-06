@@ -3,12 +3,111 @@ import requests
 import json
 import pandas as pd
 from pandas import json_normalize
+from flask import Flask, request, jsonify
 
-token = str(input("Please enter the Token here"))
+app = Flask(__name__)
+@app.route("/aggregate")
+def aggregate():
+    # to get the token from the servers
+    token = request.args.get("token")
+    station = request.args.get("station")
+    param_id = request.args.get("param_id")
+    date_from = request.args.get("date_from")
+    date_to = request.args.get("date_to")
+
+    if not all([token, station,param_id, date_from, date_to]):
+        return jsonify({"error": "missing parameters"}),400
+    
+    station = int(station)
+    param_id =int(param_id)
+
+    headers = {
+        "Authorization" : f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
+    params = {
+        "stations" : station,
+        "parameters" : param_id,
+        "date_from" : date_from,
+        "date_to" : date_to,
+        "show-qc" : "undefined",
+        "use_tag": "undefined",
+        "tag_id" : "undefined",
+        "returnMetaData":"undefined"
+    }
+
+    url = "https://alpha.wscada.net/api/analysis/more"
+    
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+    ten_minute_time = []
+    ten_minute_value = []
+
+    for station_data in data:
+        for param_data in station_data.get("parameters", []):
+            if param_data.get("parameter_id") == param_id:
+                for entry in param_data.get("data",[]):
+                    ten_minute_time.append(pd.to_datetime(entry["time"]))
+                    ten_minute_value.append(entry["value"])
+
+    if not ten_minute_value:
+        return jsonify({"error":"there are no data"}),404
+    
+
+
+    aggregated_data = None
+    for station_data in data:
+        for param_data in station_data.get("parameters", []):
+            if param_data.get("parameter_id") == param_id:
+                data_items = json_normalize(param_data["data"])
+
+                if 'time' in data_items.columns and 'value' in data_items.columns:
+                              data_items['time'] = pd.to_datetime(data_items['time'])
+                              data_items.set_index('time', inplace=True)
+                              data_resampled = data_items.resample('10min').mean().round(2)
+                              aggregated_data = data_resampled.resample('h').mean()
+                              aggregated_data.index = aggregated_data.index.strftime('%Y-%m-%d %H:%M:%S')
+
+
+    results = []
+    
+    for valueten, valuetime in zip(ten_minute_value, ten_minute_time):
+        hour_time = valuetime.floor('h').strftime('%Y-%m-%d %H:%M:%S')
+
+        if hour_time in aggregated_data.index:
+            agg_value = aggregated_data.loc[hour_time, 'value']
+            status = bool(round(agg_value, 2) == round(valueten, 2))
+        else:
+            status = False
+
+        results.append({
+            "value": round(valueten, 2),
+            "aggregation": status
+         })
+    return jsonify(results)
+
+
+if __name__=="__main__":
+    app.run(debug=True)
+
+
+
+
+
+'''
+
+#token = str(input("Please enter the Token here"))
 
 headers = {
     #token = str(input("Please enter the Token here"))
-    "Authorization": f"Bearer {token}",
+    "Authorization": f"Bearer{token}",
     "Accept": "application/json"
 }
 
@@ -36,6 +135,7 @@ print(df.columns)
 #df.set_index('datetime', inplace=True)
 
 #aggregated_data = df.resample('H').mean()
+'''
 
 '''
 with open("Aggregated_Data.json", "a", encoding = "utf-8") as file:
@@ -50,6 +150,7 @@ with open("Aggregated_Data.json", "a", encoding = "utf-8") as file:
     #file.write(json.dumps(data, indent=1))
 
 #print(f"\n {name}, you feeling {mood}")
+'''
 '''
 # prints out the structure od the data to inspect
 print(json.dumps(data, indent=1))
@@ -85,10 +186,4 @@ if 'datetime' in data_items.columns and 'value' in data_items.columns:
 else:
     print("required columns {datetime and value} are not found")
 
-
-
-
-
-
-
-
+'''

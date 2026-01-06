@@ -3,7 +3,7 @@ import requests
 import json
 import pandas as pd
 from pandas import json_normalize
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 second_parameter_id_alpha = {
     "T_1H" : 726,
@@ -126,7 +126,14 @@ def home():
         })
     return jsonify(results)
 
-       
+@app.route("/aggregate")
+def aggregate():
+    token = request.args.get("token")
+    station = int(request.args.get("station"))
+    param_id = int(request.args.get("param_id"))
+    date_from = request.args.get("date_from")
+    date_to = request.args.get("date_to")
+      
     #return jsonify({"a":1, "b":2})
     #return jsonify ({"value": valueten}) # for single value only
     #return json.dumps(ten_minutevalue, indent=1) 
