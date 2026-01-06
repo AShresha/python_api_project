@@ -86,12 +86,16 @@ print(json.dumps(second_parameter_id_alpha, indent = 4))
 
 second_parameter_id_alpha_num = int(input(f"which parameter you want to aggregate "))
 
+ten_minutetime = []
 ten_minutevalue = []
 for stationten in data:
     for parameterten in stationten["parameters"]:
         if parameterten["parameter_id"] == second_parameter_id_alpha_num:
             for entry_ten in parameterten["data"]:
-                ten_minutevalue.append(entry_ten["value"])
+               ten_minutetime.append(entry_ten["time"])
+               ten_minutevalue.append(entry_ten["value"])
+
+ten_minutetime = pd.to_datetime(ten_minutetime)
 
 '''
 #to view from the terminal
@@ -108,11 +112,17 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     results = []
-    for valueten in ten_minutevalue:
-        status = bool((aggregated_data['value'].round(2) == round(valueten,2)).any())
+    for valueten, valuetime in zip(ten_minutevalue, ten_minutetime):
+        hour_time = valuetime.floor('H').strftime('%Y-%m-%d %H:%M:%S')
+        agg_value = aggregated_data.loc[hour_time, 'value']
+        status = bool(round(agg_value,2) == round(valueten,2))
+
+    #for valueten in ten_minutevalue:
+        #status = bool((aggregated_data['value'].round(2) == round(valueten,2)).any())
         results.append({
+            "aggregation":status,
             "value": round(valueten,2),
-            "aggregation": status
+            #"aggregation": status
         })
     return jsonify(results)
 
