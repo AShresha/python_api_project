@@ -80,7 +80,9 @@ for station in data:
             print("required columns {datetime and value} are not found")
 print(json.dumps(aggregated_data.to_dict(orient='index'),indent=1))
 
-second_parameter_id_alpha_num = int(input(f"which parameter you want to aggregate {second_parameter_id_alpha}"))
+print(json.dumps(second_parameter_id_alpha, indent = 4))
+
+second_parameter_id_alpha_num = int(input(f"which parameter you want to aggregate "))
 
 ten_minutevalue = []
 for stationten in data:
