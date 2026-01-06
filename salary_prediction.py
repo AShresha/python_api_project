@@ -47,6 +47,35 @@ def aggregate():
         return jsonify({"error": str(e)}), 500
     
 
+    for station_data_1 in data:
+        for parameters_data_1 in station_data_1['parameters']:
+            data_items = json_normalize(parameters_data_1['data']) #flatten the 'data' field if its nested and check the structure
+            #print(data_items.head())
+            #if 'datetime' in data_items.columns and 'value' in data_items.columns: # for observation table
+            if 'time' in data_items.columns and 'value' in data_items.columns:
+                #Convert datetime to pandas datetime object
+                data_items['time'] = pd.to_datetime(data_items['time'])
+                #setting datetime as index
+                data_items.set_index('time', inplace=True)
+                #resampling the data every 10 minute
+                data_resampled = data_items.resample('10min').mean()
+                data_resampled = round(data_resampled,2)
+    
+                #grouping the hourly intervals and calculating the aveage for each hour
+                aggregated_data = data_resampled.resample('h').mean()
+
+                #shifting the result to allign with the next hour
+                aggregated_data = aggregated_data.shift(0, freq='h')
+
+                #Convert the index(timestamps) to string format for json serialization
+                aggregated_data.index =  aggregated_data.index.strftime('%Y-%m-%d %H:%M:%S')
+                #print the aggregated data
+                #print(json.dumps(aggregated_data.to_dict(orient='index'),indent=1))
+            else: 
+                print("required columns {datetime and value} are not found")
+
+    
+
     ten_minute_time = []
     ten_minute_value = []
 
@@ -60,8 +89,8 @@ def aggregate():
     if not ten_minute_value:
         return jsonify({"error":"there are no data"}),404
     
-
-
+    
+    '''
     aggregated_data = None
     for station_data in data:
         for param_data in station_data.get("parameters", []):
@@ -74,6 +103,8 @@ def aggregate():
                               data_resampled = data_items.resample('10min').mean().round(2)
                               aggregated_data = data_resampled.resample('h').mean()
                               aggregated_data.index = aggregated_data.index.strftime('%Y-%m-%d %H:%M:%S')
+
+    '''   
 
 
     results = []
