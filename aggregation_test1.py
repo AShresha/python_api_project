@@ -3,6 +3,7 @@ import requests
 import json
 import pandas as pd
 from pandas import json_normalize
+from flask import Flask, jsonify
 
 second_parameter_id_alpha = {
     "T_1H" : 726,
@@ -57,6 +58,7 @@ for station in data:
     for parameters in station['parameters']:
         data_items = json_normalize(parameters['data']) #flatten the 'data' field if its nested and check the structure
             #print(data_items.head())
+        #if 'datetime' in data_items.columns and 'value' in data_items.columns: # for observation table
         if 'time' in data_items.columns and 'value' in data_items.columns:
             #Convert datetime to pandas datetime object
             data_items['time'] = pd.to_datetime(data_items['time'])
@@ -78,7 +80,7 @@ for station in data:
                 #print(json.dumps(aggregated_data.to_dict(orient='index'),indent=1))
         else: 
             print("required columns {datetime and value} are not found")
-print(json.dumps(aggregated_data.to_dict(orient='index'),indent=1))
+#print(json.dumps(aggregated_data.to_dict(orient='index'),indent=1))
 
 print(json.dumps(second_parameter_id_alpha, indent = 4))
 
@@ -91,6 +93,8 @@ for stationten in data:
             for entry_ten in parameterten["data"]:
                 ten_minutevalue.append(entry_ten["value"])
 
+'''
+#to view from the terminal
 for valueten in ten_minutevalue:
        print(round(valueten,2))
        #if valueten in aggregated_data['value']:
@@ -98,6 +102,24 @@ for valueten in ten_minutevalue:
            print("aggregation is okay")
        else:
            print("aggregation not okay")
-        
-           
+'''
+      
+app = Flask(__name__)
+@app.route("/")
+def home():
+    results = []
+    for valueten in ten_minutevalue:
+        status = bool((aggregated_data['value'].round(2) == round(valueten,2)).any())
+        results.append({
+            "value": round(valueten,2),
+            "aggregation": status
+        })
+    return jsonify(results)
+
+       
+    #return jsonify({"a":1, "b":2})
+    #return jsonify ({"value": valueten}) # for single value only
+    #return json.dumps(ten_minutevalue, indent=1) 
+app.run()
+
 
