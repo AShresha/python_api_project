@@ -1,6 +1,7 @@
 from datetime import datetime
 import requests
 import json
+import os
 import pandas as pd
 from pandas import json_normalize
 from flask import Flask, request, jsonify
@@ -109,7 +110,8 @@ def aggregate():
 
 
 if __name__=="__main__":
-    pass
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT',10000)))
+    #pass
     #app.run(debug=True)
 
 
