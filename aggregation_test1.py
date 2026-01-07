@@ -120,6 +120,7 @@ def home():
     #for valueten in ten_minutevalue:
         #status = bool((aggregated_data['value'].round(2) == round(valueten,2)).any())
         results.append({
+            "time": hour_time,
             "aggregation":status,
             "value": round(valueten,2),
             #"aggregation": status

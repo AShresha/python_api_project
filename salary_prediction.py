@@ -103,6 +103,7 @@ def aggregate():
             status = False
 
         results.append({
+            "time": hour_time,
             "value": round(valueten, 2),
             "aggregation": status
          })
