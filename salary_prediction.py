@@ -89,23 +89,6 @@ def aggregate():
     if not ten_minute_value:
         return jsonify({"error":"there are no data"}),404
     
-    
-    '''
-    aggregated_data = None
-    for station_data in data:
-        for param_data in station_data.get("parameters", []):
-            if param_data.get("parameter_id") == param_id:
-                data_items = json_normalize(param_data["data"])
-
-                if 'time' in data_items.columns and 'value' in data_items.columns:
-                              data_items['time'] = pd.to_datetime(data_items['time'])
-                              data_items.set_index('time', inplace=True)
-                              data_resampled = data_items.resample('10min').mean().round(2)
-                              aggregated_data = data_resampled.resample('h').mean()
-                              aggregated_data.index = aggregated_data.index.strftime('%Y-%m-%d %H:%M:%S')
-
-    '''   
-
 
     results = []
     
@@ -126,7 +109,8 @@ def aggregate():
 
 
 if __name__=="__main__":
-    app.run(debug=True)
+    pass
+    #app.run(debug=True)
 
 
 
