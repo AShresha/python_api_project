@@ -63,7 +63,8 @@ def aggregate():
                 data_resampled = round(data_resampled,2)
     
                 #grouping the hourly intervals and calculating the aveage for each hour
-                aggregated_data = data_resampled.resample('h').mean()
+                #aggregated_data = data_resampled.resample('h').mean()
+                aggregated_data = data_resampled.resample('h',label='right',closed='right').mean()
 
                 #shifting the result to allign with the next hour
                 aggregated_data = aggregated_data.shift(0, freq='h')
