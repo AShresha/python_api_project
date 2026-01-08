@@ -45,8 +45,9 @@ def aggregate():
         response.raise_for_status()
         data = response.json()
     except Exception as e:
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({"error": str(e)}), 500
     
+    aggregated_data = None
 
     for station_data_1 in data:
         for parameters_data_1 in station_data_1['parameters']:
@@ -65,8 +66,7 @@ def aggregate():
                 #grouping the hourly intervals and calculating the aveage for each hour
                 #aggregated_data = data_resampled.resample('h').mean()
                 aggregated_data = data_resampled.resample('h',label='right',closed='right').mean()
-                aggregated_data_max = data_resampled.resample('h').max()
-                
+
                 #shifting the result to allign with the next hour
                 aggregated_data = aggregated_data.shift(0, freq='h')
 
@@ -76,6 +76,8 @@ def aggregate():
                 #print(json.dumps(aggregated_data.to_dict(orient='index'),indent=1))
             else: 
                 print("required columns {datetime and value} are not found")
+    if aggregated_data is None:
+        return jsonify({"error": "aggregation failed"}),500
 
     
 
@@ -101,15 +103,13 @@ def aggregate():
         if hour_time in aggregated_data.index:
             agg_value = aggregated_data.loc[hour_time, 'value']
             status = bool(round(agg_value, 2) == round(valueten, 2))
-            max_ok = bool(aggregated_data_max > agg_value)
         else:
             status = False
 
         results.append({
             "time": hour_time,
             "value": round(valueten, 2),
-            "aggregation": status,
-            "max": max_ok
+            "aggregation": status
          })
     return jsonify(results)
 
