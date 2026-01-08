@@ -95,7 +95,7 @@ def aggregate():
     results = []
     
     for valueten, valuetime in zip(ten_minute_value, ten_minute_time):
-        hour_time = valuetime.floor('h').strftime('%Y-%m-%d %H:%M:%S')
+        hour_time = valuetime.ceil('h').strftime('%Y-%m-%d %H:%M:%S')
 
         if hour_time in aggregated_data.index:
             agg_value = aggregated_data.loc[hour_time, 'value']
