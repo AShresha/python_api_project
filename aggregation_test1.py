@@ -90,6 +90,7 @@ ten_minutetime = []
 ten_minutevalue = []
 for stationten in data:
     for parameterten in stationten["parameters"]:
+        print(parameterten["parameter_code"])
         if parameterten["parameter_id"] == second_parameter_id_alpha_num:
             for entry_ten in parameterten["data"]:
                ten_minutetime.append(entry_ten["time"])
