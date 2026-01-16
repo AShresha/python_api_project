@@ -12,16 +12,23 @@ def aggregate():
     # to get the token from the servers
     token = request.args.get("token")
     station = request.args.get("station")
+    param_id_raw = request.args.get("param_id")
     #param_id = request.args.get("param_id")
-    param_id = ",".join(map(str, param_id))
+    #param_id = ",".join(map(str, param_ids))
     date_from = request.args.get("date_from")
     date_to = request.args.get("date_to")
 
-    if not all([token, station,param_id, date_from, date_to]):
+    if not all([token, station,param_id_raw, date_from, date_to]):
         return jsonify({"error": "missing parameters"}),400
     
     station = int(station)
-    param_id =int(param_id)
+    #param_id =int(param_id)
+    param_id_raw = request.args.get("param_id")
+
+    try:
+        param_ids = [int(p.strip()) for p in param_id_raw.split(",")]
+    except Exception:
+        return jsonify({"error":"param_id should be multiples"}), 400
 
     headers = {
         "Authorization" : f"Bearer {token}",
@@ -30,7 +37,7 @@ def aggregate():
 
     params = {
         "stations" : station,
-        "parameters" : param_id,
+        "parameters" : ",".join(map(str, param_ids)),
         "date_from" : date_from,
         "date_to" : date_to,
         "show-qc" : "undefined",
@@ -87,7 +94,7 @@ def aggregate():
 
     for station_data in data:
         for param_data in station_data.get("parameters", []):
-            if param_data.get("parameter_id") in param_id:
+            if param_data.get("parameter_id") in param_ids:
                 for entry in param_data.get("data",[]):
                     ten_minute_time.append(pd.to_datetime(entry["time"]))
                     ten_minute_value.append(entry["value"])
@@ -116,9 +123,9 @@ def aggregate():
 
 
 if __name__=="__main__":
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT',10000)))
+    #app.run(host='0.0.0.0', port=int(os.environ.get('PORT',10000))) # to see the code from render account, i.e from any PC
     #pass
-    #app.run(debug=True)
+    app.run(debug=True) # to see the result from localhost 127.0.0.1:5000
 
 
 
