@@ -12,7 +12,8 @@ def aggregate():
     # to get the token from the servers
     token = request.args.get("token")
     station = request.args.get("station")
-    param_id = request.args.get("param_id")
+    #param_id = request.args.get("param_id")
+    param_id = ",".join(map(str, param_id))
     date_from = request.args.get("date_from")
     date_to = request.args.get("date_to")
 
@@ -86,7 +87,7 @@ def aggregate():
 
     for station_data in data:
         for param_data in station_data.get("parameters", []):
-            if param_data.get("parameter_id") == param_id:
+            if param_data.get("parameter_id") in param_id:
                 for entry in param_data.get("data",[]):
                     ten_minute_time.append(pd.to_datetime(entry["time"]))
                     ten_minute_value.append(entry["value"])
