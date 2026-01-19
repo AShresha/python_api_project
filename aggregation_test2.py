@@ -56,15 +56,19 @@ for station in data:
                 data_items['time'] = pd.to_datetime(data_items['time'])
                 data_items.set_index('time', inplace=True)
 
-                data_resampled = data_items.resample('10min').mean().round(2)
-                hourly = data_resampled.resample('h').mean()
+                data_resampled = data_items.resample('10min').mean()
+                print(data_resampled)
+                #hourly = data_resampled.resample('h').mean()
+                hourly = data_resampled.resample('h', label='right',closed='right').mean().round(2)
                 #hourly = data_items.resample('h').mean().round(2)
 
                 #hourly.index = hourly.index.strftime('%Y-%m-%d %H:%M:%S')
+                hourly = hourly.shift(0, freq='h')
 
                 aggregated_data.append(hourly)
             else:
                 print("required columns are not found")
+print(aggregated_data)
 
 if aggregated_data:
      aggregated_data_10m = pd.concat(aggregated_data)
