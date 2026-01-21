@@ -97,7 +97,6 @@ for station in data:
             print("the data are not 10 minutes data")
 '''
 
-
 app = Flask(__name__)
 @app.route("/")
 def home():
