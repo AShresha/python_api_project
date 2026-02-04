@@ -1,6 +1,6 @@
 import sys
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWinddow, QTableView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView
 from PyQt5.QtCore import QAbstractTableModel, Qt, QTimer
 from PyQt5.QtGui import QColor
 
@@ -48,7 +48,7 @@ class ResultTableModel(QAbstractTableModel):
         self._data = new_data
         self.endResetModel()
 
-class MainWindow(QMainWinddow):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Aggregation Check")
@@ -70,8 +70,8 @@ class MainWindow(QMainWinddow):
             response = requests.get(API_URL, timeout=5)
             response.raise_for_status()
             self.mode1.update_data(response.json())
-        except Exception as 'e':
-            print("API error:", a)
+        except Exception as e:
+            print("API error:", e)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
