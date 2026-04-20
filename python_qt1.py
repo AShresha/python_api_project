@@ -3,6 +3,7 @@ import requests
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView
 from PyQt5.QtCore import QAbstractTableModel, Qt, QTimer
 from PyQt5.QtGui import QColor
+import aggregation_test2
 
 API_URL = "http://127.0.0.1:5000/"
 
@@ -27,12 +28,16 @@ class ResultTableModel(QAbstractTableModel):
         col = index.column()
 
         if role == Qt.DisplayRole:
-            return [
-                str(row["time"]),
+            value =[
+                #(row["time"]),
+                row["time"],
                 row["aggregated_value"],
                 row["tss_value"],
                 row["aggregation"]
             ][col]
+            if isinstance(value, bool):
+                return "yes" if value else "No"
+            return str(value)
         
         if role == Qt.BackgroundRole and not row["aggregation"]:
             return QColor(255,210,210)
@@ -70,6 +75,7 @@ class MainWindow(QMainWindow):
             response = requests.get(API_URL, timeout=5)
             response.raise_for_status()
             self.mode1.update_data(response.json())
+            self.table.resizeColumnsToContents()
         except Exception as e:
             print("API error:", e)
 

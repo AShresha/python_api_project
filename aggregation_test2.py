@@ -33,22 +33,24 @@ params = {
 }
 
 url = "https://alpha.wscada.net/api/analysis/more"
+#url = "https://rts.wscada.net/api/analysis/more"
 
 response = requests.get(url, headers=headers, params=params)
 response.raise_for_status()
 
 data = response.json()
+print(data)
 df = pd.DataFrame(data)
 
-hour_dict = {"T_1H": 505, "TD_1H": 510, "RH_1H": 540, "GLOB_1H": 589}
-min_dict = {"T_10M": 2, "TD_10M": 511, "RH_10M": 539, "GLOB_10M": 591}
-min_set = {"T1_10M", "TD.1_10M", "RH.1_10M","GLOB_10M"}
+#hour_dict = {"T_1H": 505, "TD_1H": 510, "RH_1H": 540, "GLOB_1H": 589}
+#min_dict = {"T_10M": 2, "TD_10M": 511, "RH_10M": 539, "GLOB_10M": 591}
+#min_set = {"T1_10M", "TD.1_10M", "RH.1_10M","GLOB_10M"}
 
 aggregated_data = []
 
 for station in data:
     for parameters in station.get('parameters', []):
-        if parameters.get("parameter_code") == "T1_10M":
+        if parameters.get("parameter_code") == "T_10M": # need to change for different 10 minutes data
 
             data_items = json_normalize(parameters.get('data', []))
 
@@ -105,7 +107,7 @@ def home():
     value = []
     for station in data:
         for parameter in station.get("parameters",[]):
-            if parameter.get("parameter_code") == "T1_1H": #T1_10M" or "TD.1_10M" or "RH.1_10M":
+            if parameter.get("parameter_code") == "T_1H": #T1_10M" or "TD.1_10M" or "RH.1_10M":# need to change for different 10 minutes data
                 for entry in parameter.get("data", []):
                     value.append({
                          "time" : pd.to_datetime(entry["time"]).floor('h'),
