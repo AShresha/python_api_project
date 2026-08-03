@@ -1,5 +1,6 @@
 import sys
 from aggregation_function import run_analysis
+#from aggregation_function2 import run_analysis
 
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout,
@@ -23,6 +24,12 @@ class App(QWidget):
         self.param_input = QLineEdit()
         self.param_input.setPlaceholderText("Enter parameter IDs (comma separated)")
 
+        self.startdate_input = QLineEdit()
+        self.startdate_input.setPlaceholderText("Enter Start Date (2025-12-25T00:00:00)")
+
+        self.enddate_input = QLineEdit()
+        self.enddate_input.setPlaceholderText("Enter End Date(2025-12-25T10:00:00)")
+
         self.run_button = QPushButton("Run Analysis")
         self.result_box = QTextEdit()
 
@@ -34,6 +41,12 @@ class App(QWidget):
 
         layout.addWidget(QLabel("Parameters"))
         layout.addWidget(self.param_input)
+
+        layout.addWidget(QLabel("Start Date"))
+        layout.addWidget(self.startdate_input)
+
+        layout.addWidget(QLabel("End Date"))
+        layout.addWidget(self.enddate_input)
 
         layout.addWidget(self.run_button)
         layout.addWidget(self.result_box)
@@ -52,8 +65,10 @@ class App(QWidget):
             token,
             station,
             params,
-            "2025-12-25T00:00:00",
-            "2025-12-25T10:00:00"
+            self.startdate_input.text(),
+            self.enddate_input.text()
+            #"2025-12-25T00:00:00",
+            #"2025-12-25T10:00:00"
         )
 
         self.result_box.setText(str(result))

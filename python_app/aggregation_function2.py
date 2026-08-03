@@ -104,7 +104,7 @@ def run_analysis(token, station, param_ids, date_from, date_to):
                             "Aggregated Value" : round(agg_value, 2),
                             "tss_value" : round(api_value,2)
                         })
-    results = pd.DataFrame(results)
+    results = pd.DataFrame()
     return results
     #return jsonify(results)
 
