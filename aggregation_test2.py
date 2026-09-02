@@ -135,14 +135,20 @@ def home():
             
                     #results.append(parameter.get("parameter_code"))
                     #for entry in parameter.get("data",[]):
-                    results.append({
-                        "time" : t_time,
-                        "aggregated_value" : round(agg_value,2),
-                        "tss_value" : round(api_value,2),
-                        "aggregation" : status,
+                    #results.append({
+                        #"time" : t_time,
+                        #"aggregated_value" : round(agg_value,2),
+                        #"tss_value" : round(api_value,2),
+                        #"aggregation" : status,
                         #"value" : round(agg_value,2)
                         # "time" : entry.get("time"),
                         #"Value": round(entry.get("value"),2)
+                        #})
+                    if status == False:
+                        results.append({
+                            "time" : t_time,
+                            "Aggregated Value" : round(agg_value, 2),
+                            "tss_value" : round(api_value,2)
                         })
     return jsonify(results)
 
